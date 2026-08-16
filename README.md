@@ -1,42 +1,73 @@
-# Pure minerals microservices
-===========================
+# Pure Minerals · Microservices
 
-This repository contains the documentation for the Pure minerals microservices.
+> Coordination and documentation repository for the **Pure Minerals** microservices platform.
 
+[![Architecture](https://img.shields.io/badge/architecture-microservices-1f6feb?style=flat-square)](#architecture)
+[![Communication](https://img.shields.io/badge/communication-gRPC-0f9d58?style=flat-square)](#architecture)
+[![Orchestration](https://img.shields.io/badge/orchestration-Kubernetes-326ce5?style=flat-square)](#architecture)
 
-## Getting started
+## Overview
 
-For init the project, run the following command:
+This repository centralizes documentation and local setup for the services that make up Pure Minerals. Each service maintains its own lifecycle and database; external access is handled through the gateway.
 
-```./init.sh```
+## Services
 
-### services
+| Service | Responsibility | Technology / access | Repository |
+| --- | --- | --- | --- |
+| `pm-gateway` | Single entry point for platform consumers. | REST API | [View repository](https://github.com/pav-dev98/pm-gateway) |
+| `pm-proto` | Unified interface for the microservices. | gRPC API | [View repository](https://github.com/pav-dev98/pm-proto) |
+| `pm-auth-svc` | Platform authentication. | Authentication service | [View repository](https://github.com/pav-dev98/pm-auth-svc) |
+| `pm-user-svc` | User management. | User service | Repository to be defined |
 
-#### pm-gateway
+## Architecture
 
-The gateway is a REST API that provides a unified interface to the Pure minerals microservices.
+```mermaid
+flowchart LR
+    C[Client] -->|REST| G[pm-gateway]
+    G -->|gRPC| P[pm-proto]
 
-link to repo: https://github.com/pav-dev98/pm-gateway
+    P <-->|gRPC| A[pm-auth-svc]
+    P <-->|gRPC| U[pm-user-svc]
 
-#### pm-proto
+    P --> DP[(Dedicated database)]
+    A --> DA[(Dedicated database)]
+    U --> DU[(Dedicated database)]
+```
 
-The proto microservice is a gRPC API that provides a unified interface to the Pure minerals microservices.
+- Clients access the platform through `pm-gateway`.
+- Service-to-service communication uses **gRPC**.
+- Each service owns its data and uses an independent database.
+- Services are deployed on **Kubernetes**.
 
-link to repo: https://github.com/pav-dev98/pm-proto
+## Quick start
 
-#### pm-auth-svc
+### Prerequisites
 
-Authentication service for the Pure minerals microservices.
+- [Git](https://git-scm.com/) installed and access to the listed repositories.
+- Each service documents its own dependencies and environment requirements in its repository.
 
-link to repo: https://github.com/pav-dev98/pm-auth-svc
+### Clone the services
 
-#### pm-user-svc
-User service for the Pure minerals microservices.
+From the root of this repository, run:
 
-### Architecture
+```bash
+./init.sh
+```
 
-All services are deployed on Kubernetes and are accessible through the gateway.
+The script currently clones `pm-gateway`, `pm-proto`, and `pm-auth-svc` as sibling directories. Then follow each service's README to configure and run it.
 
-The communication between the services is done through gRPC.
+## Repository structure
 
-Each service has its own database, which is used to store the data.
+```text
+.
+├── init.sh       # Clones the available service repositories
+└── README.md     # Platform documentation and map
+```
+
+## Contributing
+
+Implementation changes should be made in the corresponding service repository. When changing the platform composition, update this README and `init.sh` as well to keep the coordination documentation current.
+
+---
+
+Built for the **Pure Minerals** platform.
